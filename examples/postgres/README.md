@@ -2,6 +2,22 @@
 
 Manage IAM users and grants on a Cloud SQL **PostgreSQL** instance.
 
+## Module source
+
+This example sources the module locally (`source = "../../"`) so it always
+validates against the code in this repository. When consuming the published
+module, reference it from the Terraform or OpenTofu registry instead:
+
+```hcl
+module "cloud_sql_iam" {
+  source  = "boozt-platform/cloud-sql-iam/google"
+  version = "~> 1.1"
+
+  # configuration = { ... }
+  # user_grants   = [ ... ]
+}
+```
+
 ## Usage
 
 ```bash
