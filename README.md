@@ -69,9 +69,13 @@ never opens a connection.
 
 ## Usage
 
+This module is published to both the [Terraform Registry][tf-registry] and the
+[OpenTofu Registry][otf-registry]:
+
 ```hcl
 module "cloud_sql_iam" {
-  source = "github.com/boozt-platform/terraform-google-cloud-sql-iam?ref=v1.0.0"
+  source  = "boozt-platform/cloud-sql-iam/google"
+  version = "~> 1.1"
 
   configuration = {
     connection_name = "my-project:europe-west1:my-instance"
@@ -97,6 +101,9 @@ module "cloud_sql_iam" {
   ]
 }
 ```
+
+Alternatively, you can source the module directly from GitHub by tag, e.g.
+`source = "github.com/boozt-platform/terraform-google-cloud-sql-iam?ref=v1.1.0"`.
 
 ## PostgreSQL specifics
 
@@ -225,3 +232,6 @@ For detailed information please follow the
 
 This project is licensed under the MIT License. Please see [LICENSE](./LICENSE)
 for full details.
+
+[tf-registry]: https://registry.terraform.io/modules/boozt-platform/cloud-sql-iam/google/latest
+[otf-registry]: https://search.opentofu.org/module/boozt-platform/cloud-sql-iam/google/latest
