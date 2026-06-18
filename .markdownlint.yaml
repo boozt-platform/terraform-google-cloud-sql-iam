@@ -61,5 +61,7 @@ MD033:
 MD041: false
 # MD045/no-alt-text - disabled: logo uses inline HTML img tag
 MD045: false
+# MD059/descriptive-link-text - disabled for template docs
+MD059: false
 # MD060/table-column-style - disabled for terraform-docs compatibility
 MD060: false

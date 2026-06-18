@@ -7,8 +7,23 @@
 # validation failures.
 
 mock_provider "google" {}
-mock_provider "mysql" {}
-mock_provider "postgresql" {}
+
+# Override the module's provider configurations with inert local connections so
+# the test never registers the Cloud SQL (gcppostgres / cloudsql) drivers, which
+# would otherwise require Application Default Credentials at configure time.
+# Plans run against mocked resources, so no real connection is ever made.
+provider "mysql" {
+  alias    = "cloudsql"
+  endpoint = "localhost:3306"
+}
+
+provider "postgresql" {
+  alias    = "cloudsql"
+  scheme   = "postgres"
+  host     = "localhost"
+  username = "test"
+  password = "test"
+}
 
 # The engine-detection data source is read during plan; return a version so the
 # valid runs can proceed without a real Cloud SQL instance.
