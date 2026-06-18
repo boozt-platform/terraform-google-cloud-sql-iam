@@ -8,6 +8,12 @@
 # (e.g. SELECT, INSERT, USAGE, CREATE, EXECUTE) for PostgreSQL instances.
 
 module "cloud_sql_iam" {
+  # This example uses a local source so it always validates against the code in
+  # this repository. When consuming the published module, use the registry
+  # source and a version constraint instead, e.g.:
+  #
+  #   source  = "boozt-platform/cloud-sql-iam/google"
+  #   version = "~> 1.1"
   source = "../../"
 
   configuration = {
