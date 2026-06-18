@@ -1,0 +1,89 @@
+# SPDX-FileCopyrightText: Copyright Boozt Fashion, AB
+# SPDX-License-Identifier: MIT
+---
+version: '3'
+
+vars:
+  # Root module plus every sub-module under modules/.
+  MODULE_DIRS:
+    sh: printf '. '; find modules -mindepth 1 -maxdepth 1 -type d 2>/dev/null
+
+tasks:
+  default:
+    desc: "Show available tasks"
+    cmds:
+      - task --list
+
+  init:
+    desc: "Initialize Terraform in all module dirs (no backend)"
+    cmds:
+      - for: {var: MODULE_DIRS}
+        cmd: terraform -chdir={{.ITEM}} init -backend=false
+
+  fmt:
+    desc: "Format all Terraform files"
+    cmds:
+      - terraform fmt -recursive
+
+  lint:
+    desc: "Run all linters (tflint, yamllint, markdownlint)"
+    cmds:
+      - tflint --init
+      - for: {var: MODULE_DIRS}
+        cmd: tflint --chdir={{.ITEM}}
+      - yamllint -c .yamllint.yaml .
+      - markdownlint --config .markdownlint.yaml "**/*.md"
+
+  validate:
+    desc: "Validate Terraform configuration (fmt, validate, lint)"
+    cmds:
+      - terraform fmt -check -recursive
+      - task: init
+      - for: {var: MODULE_DIRS}
+        cmd: terraform -chdir={{.ITEM}} validate
+      - task: lint
+
+  security:
+    desc: "Run security scan with Checkov"
+    cmds:
+      - checkov -d . --framework terraform --soft-fail
+
+  test:
+    desc: "Run native Terraform tests (mock providers, no credentials)"
+    cmds:
+      - terraform init -backend=false
+      - terraform test
+
+  docs:
+    desc: "Generate docs (root + sub-modules). Usage: task docs [-- --check]"
+    vars:
+      CHECK: '{{if eq .CLI_ARGS "--check"}}--output-check{{end}}'
+    cmds:
+      - for: {var: MODULE_DIRS}
+        cmd: >-
+          terraform-docs markdown table
+          --output-file README.md
+          --output-mode inject {{.ITEM}}
+          {{.CHECK}}
+
+  ci:
+    desc: "Run all CI checks"
+    cmds:
+      - task: validate
+      - task: security
+      - task: test
+      - task: docs
+        vars:
+          CLI_ARGS: "--check"
+
+  clean:
+    desc: "Clean up generated files"
+    cmds:
+      - find . -type d -name .terraform -prune -exec rm -rf {} +
+      - find . -type f -name '.terraform.lock.hcl' -delete
+      - rm -f terraform.tfstate*
+
+  hooks:
+    desc: "Install git hooks with lefthook"
+    cmds:
+      - lefthook install

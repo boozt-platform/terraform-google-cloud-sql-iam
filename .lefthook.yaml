@@ -13,3 +13,36 @@ remotes:
       - hooks/markdown-lint/.lefthook.yaml
       # lint the yaml (.yml, .yaml) files
       - hooks/yamllint/.lefthook.yaml
+
+pre-commit:
+  parallel: true
+  commands:
+    terraform_fmt:
+      glob: "*.tf"
+      tags: [terraform]
+      run: terraform fmt -check -recursive
+
+    terraform_validate:
+      glob: "*.tf"
+      tags: [terraform]
+      run: task validate
+
+    terraform_docs:
+      skip:
+        - run: test ! -f ".terraform-docs.yml"
+      stage_fixed: true
+      tags: [terraform]
+      run: task docs
+
+pre-push:
+  parallel: true
+  commands:
+    terraform_test:
+      glob: "*.tf"
+      tags: [terraform, test]
+      run: task test
+
+    terraform_docs:
+      glob: "*.tf"
+      tags: [terraform]
+      run: task docs -- --check
